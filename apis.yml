@@ -1,0 +1,14 @@
+name: Vitess
+description: A database clustering system for horizontal scaling of MySQL through
+  generalized sharding
+url: https://vitess.io
+tags:
+- Database
+- MySQL
+- Distributed Systems
+- Sharding
+- Cloud Native
+created: '2025'
+modified: '2025'
+apis: []
+common: []
