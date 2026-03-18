@@ -1,0 +1,413 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vitess.io/schemas/vitess/topology.json",
+  "title": "Vitess Topology",
+  "description": "Schema for Vitess cluster topology entities including clusters, keyspaces, shards, tablets, VSchemas, and VReplication workflows used in managing horizontally-sharded MySQL clusters.",
+  "type": "object",
+  "$defs": {
+    "Cluster": {
+      "type": "object",
+      "title": "Cluster",
+      "description": "A Vitess cluster registered with VTAdmin, representing a complete Vitess deployment with its own topology service, keyspaces, and tablets.",
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the cluster used in API paths",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable display name for the cluster",
+          "minLength": 1,
+          "maxLength": 255
+        }
+      }
+    },
+    "TabletAlias": {
+      "type": "object",
+      "title": "TabletAlias",
+      "description": "A unique identifier for a VTTablet instance combining its cell and numeric UID.",
+      "required": ["cell", "uid"],
+      "properties": {
+        "cell": {
+          "type": "string",
+          "description": "Cell (availability zone or data center) where the tablet is located",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "uid": {
+          "type": "integer",
+          "description": "Unique numeric identifier for the tablet within its cell",
+          "minimum": 0
+        }
+      }
+    },
+    "Tablet": {
+      "type": "object",
+      "title": "Tablet",
+      "description": "A VTTablet instance managing a single MySQL instance within a Vitess shard. Tablets serve one of several roles: PRIMARY (read-write), REPLICA (read-only with replication), or RDONLY (read-only batch workloads).",
+      "required": ["alias"],
+      "properties": {
+        "alias": {
+          "$ref": "#/$defs/TabletAlias",
+          "description": "Unique identifier for this tablet"
+        },
+        "hostname": {
+          "type": "string",
+          "description": "Hostname of the machine running this tablet",
+          "format": "hostname"
+        },
+        "port_map": {
+          "type": "object",
+          "description": "Map of named ports to their port numbers (e.g., grpc: 16000, mysql: 3306)",
+          "additionalProperties": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 65535
+          }
+        },
+        "keyspace": {
+          "type": "string",
+          "description": "Name of the keyspace this tablet serves",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "shard": {
+          "type": "string",
+          "description": "Key range shard this tablet serves (e.g., '-80', '80-', '-')",
+          "pattern": "^(-[0-9a-f]*|[0-9a-f]+-[0-9a-f]*)$"
+        },
+        "type": {
+          "type": "string",
+          "description": "Role of this tablet in the cluster topology",
+          "enum": ["UNKNOWN", "PRIMARY", "MASTER", "REPLICA", "RDONLY", "BATCH", "SPARE", "EXPERIMENTAL", "BACKUP", "RESTORE", "DRAINED"]
+        },
+        "mysql_hostname": {
+          "type": "string",
+          "description": "MySQL hostname, which may differ from the tablet hostname when MySQL runs on a separate host",
+          "format": "hostname"
+        },
+        "mysql_port": {
+          "type": "integer",
+          "description": "Port number on which MySQL is listening",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "tags": {
+          "type": "object",
+          "description": "Arbitrary key-value tags for organizing and filtering tablets",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Keyspace": {
+      "type": "object",
+      "title": "Keyspace",
+      "description": "A Vitess keyspace representing a logical database that may be sharded horizontally across multiple MySQL instances. Unsharded keyspaces contain a single shard serving the full key range.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique name of the keyspace within its cluster",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "sharding_column_name": {
+          "type": "string",
+          "description": "Column name used as the sharding key. Empty for unsharded keyspaces."
+        },
+        "sharding_column_type": {
+          "type": "string",
+          "description": "Data type of the sharding column",
+          "enum": ["UNSET", "UINT64", "BYTES"]
+        },
+        "served_froms": {
+          "type": "array",
+          "description": "ServedFrom records for routing certain tablet types to a different keyspace",
+          "items": {
+            "type": "object",
+            "description": "A ServedFrom record redirecting a tablet type to another keyspace",
+            "properties": {
+              "tablet_type": {
+                "type": "string",
+                "description": "Tablet type that is served from another keyspace"
+              },
+              "keyspace": {
+                "type": "string",
+                "description": "Keyspace to serve from for this tablet type"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Shard": {
+      "type": "object",
+      "title": "Shard",
+      "description": "A shard within a Vitess keyspace representing a contiguous range of the sharding key space managed by a set of tablets.",
+      "required": ["name", "keyspace"],
+      "properties": {
+        "keyspace": {
+          "type": "string",
+          "description": "Name of the keyspace containing this shard",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "Key range name identifying this shard (e.g., '-80', '80-', '-')"
+        },
+        "primary_alias": {
+          "$ref": "#/$defs/TabletAlias",
+          "description": "Tablet alias of the current primary (read-write) tablet for this shard"
+        },
+        "primary_term_start_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the current primary was elected"
+        },
+        "is_primary_serving": {
+          "type": "boolean",
+          "description": "Whether the primary tablet is currently serving queries"
+        },
+        "source_shards": {
+          "type": "array",
+          "description": "Source shards from which this shard is being populated during a reshard",
+          "items": {
+            "type": "object",
+            "description": "A source shard reference",
+            "properties": {
+              "uid": {
+                "type": "integer",
+                "description": "Unique ID for this source shard reference"
+              },
+              "keyspace": {
+                "type": "string",
+                "description": "Keyspace of the source shard"
+              },
+              "shard": {
+                "type": "string",
+                "description": "Name of the source shard"
+              }
+            }
+          }
+        }
+      }
+    },
+    "VSchema": {
+      "type": "object",
+      "title": "VSchema",
+      "description": "VTGate routing schema defining how queries are routed to shards. Specifies vindexes (sharding functions) and table routing rules for a keyspace.",
+      "required": ["sharded"],
+      "properties": {
+        "sharded": {
+          "type": "boolean",
+          "description": "Whether this keyspace is sharded. Unsharded keyspaces have a simpler VSchema."
+        },
+        "vindexes": {
+          "type": "object",
+          "description": "Map of vindex names to their definitions. Vindexes are sharding functions that map column values to shards.",
+          "additionalProperties": {
+            "$ref": "#/$defs/Vindex"
+          }
+        },
+        "tables": {
+          "type": "object",
+          "description": "Map of table names to their VSchema table definitions specifying routing behavior",
+          "additionalProperties": {
+            "$ref": "#/$defs/VSchemaTable"
+          }
+        }
+      }
+    },
+    "Vindex": {
+      "type": "object",
+      "title": "Vindex",
+      "description": "A vindex (virtual index) defining how column values are mapped to shards. Vindexes enable Vitess to route queries to the correct shard without a scatter query.",
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Vindex type determining the hashing algorithm",
+          "enum": ["hash", "lookup", "lookup_unique", "consistent_lookup", "consistent_lookup_unique", "xxhash", "unicode_loose_md5", "binary", "binary_md5", "numeric"]
+        },
+        "params": {
+          "type": "object",
+          "description": "Additional parameters for the vindex type",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "owner": {
+          "type": "string",
+          "description": "Table that owns this vindex (for lookup vindexes)"
+        }
+      }
+    },
+    "VSchemaTable": {
+      "type": "object",
+      "title": "VSchemaTable",
+      "description": "VSchema definition for a table specifying which vindexes are used for routing queries to this table.",
+      "properties": {
+        "column_vindexes": {
+          "type": "array",
+          "description": "List of column-to-vindex mappings for this table",
+          "items": {
+            "type": "object",
+            "description": "A mapping from a column to a vindex",
+            "required": ["column", "name"],
+            "properties": {
+              "column": {
+                "type": "string",
+                "description": "Column name used as input to the vindex"
+              },
+              "name": {
+                "type": "string",
+                "description": "Name of the vindex to use for this column"
+              }
+            }
+          }
+        },
+        "auto_increment": {
+          "type": "object",
+          "description": "Auto-increment configuration using a Vitess sequence",
+          "properties": {
+            "column": {
+              "type": "string",
+              "description": "Column to auto-increment"
+            },
+            "sequence": {
+              "type": "string",
+              "description": "Sequence table to use for generating IDs"
+            }
+          }
+        },
+        "columns": {
+          "type": "array",
+          "description": "Column definitions for type-aware query routing",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Column name"
+              },
+              "type": {
+                "type": "string",
+                "description": "Column data type"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Workflow": {
+      "type": "object",
+      "title": "Workflow",
+      "description": "A VReplication workflow orchestrating data movement between keyspaces or shards. Workflow types include MoveTables, Reshard, Materialize, and CreateLookupVindex.",
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Unique name for the workflow within its target keyspace",
+          "minLength": 1,
+          "maxLength": 255
+        },
+        "source": {
+          "type": "object",
+          "description": "Source configuration specifying where data is being read from",
+          "properties": {
+            "keyspace": {
+              "type": "string",
+              "description": "Source keyspace name"
+            },
+            "shards": {
+              "type": "array",
+              "description": "Source shard names being read",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "target": {
+          "type": "object",
+          "description": "Target configuration specifying where data is being written to",
+          "properties": {
+            "keyspace": {
+              "type": "string",
+              "description": "Target keyspace name"
+            },
+            "shards": {
+              "type": "array",
+              "description": "Target shard names being written",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "max_v_replication_lag": {
+          "type": "string",
+          "description": "Maximum replication lag in seconds across all VReplication streams in this workflow",
+          "pattern": "^[0-9]+$"
+        },
+        "workflow_type": {
+          "type": "string",
+          "description": "Type of VReplication workflow",
+          "enum": ["Materialize", "MoveTables", "CreateLookupVindex", "Reshard", "OnlineDDL"]
+        },
+        "workflow_sub_type": {
+          "type": "string",
+          "description": "Sub-type providing additional context for the workflow type"
+        }
+      }
+    },
+    "Backup": {
+      "type": "object",
+      "title": "Backup",
+      "description": "A tablet backup record representing a point-in-time snapshot of a shard's MySQL data.",
+      "required": ["keyspace", "shard"],
+      "properties": {
+        "cluster_id": {
+          "type": "string",
+          "description": "ID of the cluster that owns this backup"
+        },
+        "keyspace": {
+          "type": "string",
+          "description": "Keyspace this backup covers"
+        },
+        "shard": {
+          "type": "string",
+          "description": "Shard this backup covers"
+        },
+        "tablet_alias": {
+          "$ref": "#/$defs/TabletAlias",
+          "description": "Alias of the tablet that created this backup"
+        },
+        "time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the backup was taken"
+        },
+        "engine": {
+          "type": "string",
+          "description": "Backup engine used to create this backup",
+          "enum": ["builtin", "xtrabackup", "mysqlshell"]
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the backup",
+          "enum": ["UNKNOWN", "COMPLETE", "INCOMPLETE", "INVALID", "VALID"]
+        },
+        "name": {
+          "type": "string",
+          "description": "Unique name for this backup within its storage location"
+        }
+      }
+    }
+  }
+}

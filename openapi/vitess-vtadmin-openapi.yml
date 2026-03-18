@@ -1,0 +1,1141 @@
+openapi: 3.1.0
+info:
+  title: Vitess VTAdmin API
+  description: >-
+    VTAdmin is the administrative REST API and web application for managing
+    Vitess clusters. It provides endpoints for inspecting and managing cluster
+    topology, tablets, keyspaces, shards, schemas, and VReplication workflows.
+    VTAdmin serves as the backend for the VTAdmin web UI and enables programmatic
+    administration of multi-cluster Vitess deployments. The API supports operations
+    such as tablet health inspection, schema management, vschema management, query
+    execution, backup management, and workflow orchestration across one or more
+    named Vitess clusters.
+  version: '19.0'
+  contact:
+    name: Vitess Community
+    url: https://vitess.io/community/
+  termsOfService: https://github.com/vitessio/vitess/blob/main/LICENSE
+externalDocs:
+  description: VTAdmin API Documentation
+  url: https://vitess.io/docs/reference/vtadmin/
+servers:
+  - url: http://{host}:{port}/api
+    description: VTAdmin Server
+    variables:
+      host:
+        default: localhost
+      port:
+        default: '14200'
+tags:
+  - name: Clusters
+    description: Operations for listing and inspecting Vitess clusters registered with VTAdmin
+  - name: Tablets
+    description: Operations for managing VTTablet instances across clusters
+  - name: Keyspaces
+    description: Operations for managing keyspaces within Vitess clusters
+  - name: Shards
+    description: Operations for managing shards within keyspaces
+  - name: Schema
+    description: Operations for inspecting and managing database schemas
+  - name: VSchema
+    description: Operations for managing VTGate routing schemas (VSchemas)
+  - name: Workflows
+    description: Operations for managing VReplication workflows
+  - name: Backups
+    description: Operations for managing tablet backups
+  - name: Cells
+    description: Operations for listing cells within clusters
+  - name: Gates
+    description: Operations for managing VTGate instances
+  - name: Topology
+    description: Operations for inspecting cluster topology
+security:
+  - bearerAuth: []
+paths:
+  /clusters:
+    get:
+      operationId: getClusters
+      summary: List clusters
+      description: >-
+        Returns a list of all Vitess clusters that are registered with this
+        VTAdmin instance. Each cluster entry includes its ID and name. This
+        endpoint is commonly used to enumerate available clusters before
+        performing cluster-specific operations.
+      tags:
+        - Clusters
+      responses:
+        '200':
+          description: List of clusters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetClustersResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tablets:
+    get:
+      operationId: getTablets
+      summary: List tablets
+      description: >-
+        Returns a list of all VTTablet instances across all registered clusters,
+        or filtered by the specified cluster IDs. Each tablet entry includes
+        its cluster, keyspace, shard, type (primary, replica, rdonly), state,
+        alias, and hostname. This endpoint is used to get a complete inventory
+        of tablets in the fleet.
+      tags:
+        - Tablets
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs (can be repeated)
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of tablets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTabletsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tablet/{tablet}:
+    get:
+      operationId: getTablet
+      summary: Get a tablet
+      description: >-
+        Returns detailed information about a specific tablet identified by its
+        tablet alias (cluster/cell-uid format). The response includes the
+        tablet's cluster, keyspace, shard, type, state, FQDN, and other
+        metadata. This endpoint is used to inspect an individual tablet before
+        performing maintenance or diagnostic operations.
+      tags:
+        - Tablets
+      parameters:
+        - $ref: '#/components/parameters/TabletAlias'
+      responses:
+        '200':
+          description: Tablet details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tablet'
+        '404':
+          description: Tablet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tablet/{tablet}/full:
+    get:
+      operationId: getTabletFull
+      summary: Get full tablet details
+      description: >-
+        Returns comprehensive details about a specific tablet including its
+        current health, replication status, and configuration. This endpoint
+        provides more information than the basic tablet endpoint and is used
+        for detailed inspection and troubleshooting.
+      tags:
+        - Tablets
+      parameters:
+        - $ref: '#/components/parameters/TabletAlias'
+      responses:
+        '200':
+          description: Full tablet details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTabletFullResponse'
+        '404':
+          description: Tablet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /tablet/{tablet}/debug/vars:
+    get:
+      operationId: getTabletDebugVars
+      summary: Get tablet debug variables
+      description: >-
+        Returns the debug variables exported by a specific tablet, which include
+        performance counters, query statistics, replication lag metrics, and
+        other operational data. This endpoint proxies the tablet's internal
+        debug/vars endpoint through VTAdmin.
+      tags:
+        - Tablets
+      parameters:
+        - $ref: '#/components/parameters/TabletAlias'
+      responses:
+        '200':
+          description: Tablet debug variables
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Key-value map of debug variables
+        '404':
+          description: Tablet not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /keyspaces:
+    get:
+      operationId: getKeyspaces
+      summary: List keyspaces
+      description: >-
+        Returns a list of all keyspaces across all registered clusters or
+        filtered by specified cluster IDs. Each keyspace entry includes its
+        name, cluster, shard information, and serving state. Keyspaces in
+        Vitess represent logical databases that can be sharded horizontally
+        across multiple MySQL instances.
+      tags:
+        - Keyspaces
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs (can be repeated)
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of keyspaces
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetKeyspacesResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /keyspace/{cluster_id}/{name}:
+    get:
+      operationId: getKeyspace
+      summary: Get a keyspace
+      description: >-
+        Returns detailed information about a specific keyspace within a cluster,
+        including its sharding configuration, serving shards, and VSchema. This
+        endpoint is used to inspect a keyspace's topology before performing
+        schema changes or resharding operations.
+      tags:
+        - Keyspaces
+      parameters:
+        - $ref: '#/components/parameters/ClusterId'
+        - name: name
+          in: path
+          required: true
+          description: Name of the keyspace
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Keyspace details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Keyspace'
+        '404':
+          description: Keyspace not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /shards/{cluster_id}/{keyspace}:
+    get:
+      operationId: getShards
+      summary: List shards in a keyspace
+      description: >-
+        Returns a list of all shards within a specific keyspace. Each shard
+        entry includes its name (key range), primary tablet alias, and whether
+        it is currently serving queries. Shard ranges are expressed as key
+        ranges such as "-80" or "80-" for two-shard configurations.
+      tags:
+        - Shards
+      parameters:
+        - $ref: '#/components/parameters/ClusterId'
+        - name: keyspace
+          in: path
+          required: true
+          description: Name of the keyspace containing the shards
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of shards
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetShardsResponse'
+        '404':
+          description: Keyspace not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /schema/{cluster_id}/{keyspace}:
+    get:
+      operationId: getSchema
+      summary: Get schema for a keyspace
+      description: >-
+        Returns the database schema for the specified keyspace, including table
+        definitions, view definitions, and index information. The schema is
+        retrieved from a tablet serving the keyspace. This endpoint is used to
+        inspect table structures for documentation, migration planning, or
+        validation purposes.
+      tags:
+        - Schema
+      parameters:
+        - $ref: '#/components/parameters/ClusterId'
+        - name: keyspace
+          in: path
+          required: true
+          description: Name of the keyspace to retrieve the schema for
+          schema:
+            type: string
+        - name: tables
+          in: query
+          description: List of specific tables to include in the response
+          schema:
+            type: array
+            items:
+              type: string
+        - name: exclude_tables
+          in: query
+          description: List of tables to exclude from the response
+          schema:
+            type: array
+            items:
+              type: string
+        - name: include_views
+          in: query
+          description: When true, includes view definitions in the response
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Keyspace schema
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Schema'
+        '404':
+          description: Keyspace not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /schemas:
+    get:
+      operationId: getSchemas
+      summary: List schemas
+      description: >-
+        Returns schemas for all keyspaces across all registered clusters or
+        filtered by specified cluster IDs. This is a batch version of the
+        per-keyspace schema endpoint and is used to get a comprehensive view
+        of all database schemas in the fleet.
+      tags:
+        - Schema
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of schemas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSchemasResponse'
+  /vschema/{cluster_id}/{keyspace}:
+    get:
+      operationId: getVSchema
+      summary: Get VSchema for a keyspace
+      description: >-
+        Returns the VSchema (VTGate routing schema) for a specific keyspace.
+        The VSchema defines how VTGate routes queries to shards, including
+        vindexes (sharding functions), vindexed tables, and sequence tables.
+        This endpoint is used to inspect and audit routing configuration.
+      tags:
+        - VSchema
+      parameters:
+        - $ref: '#/components/parameters/ClusterId'
+        - name: keyspace
+          in: path
+          required: true
+          description: Name of the keyspace
+          schema:
+            type: string
+      responses:
+        '200':
+          description: VSchema for the keyspace
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VSchema'
+        '404':
+          description: Keyspace not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /vschemas:
+    get:
+      operationId: getVSchemas
+      summary: List VSchemas
+      description: >-
+        Returns VSchemas for all keyspaces across all registered clusters or
+        filtered by specified cluster IDs. This batch endpoint is used to
+        get a comprehensive view of all routing schemas across the fleet.
+      tags:
+        - VSchema
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of VSchemas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetVSchemasResponse'
+  /workflows:
+    get:
+      operationId: getWorkflows
+      summary: List workflows
+      description: >-
+        Returns a list of all VReplication workflows across all registered
+        clusters or filtered by specified cluster IDs. Each workflow entry
+        includes its name, cluster, source and target keyspaces, workflow
+        type, and current state. Workflows include MoveTables, Reshard,
+        Materialize, and CreateLookupVindex operations.
+      tags:
+        - Workflows
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs
+          schema:
+            type: array
+            items:
+              type: string
+        - name: active_only
+          in: query
+          description: When true, returns only active (running) workflows
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of workflows
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetWorkflowsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /workflow/{cluster_id}/{keyspace}/{name}:
+    get:
+      operationId: getWorkflow
+      summary: Get a workflow
+      description: >-
+        Returns detailed information about a specific VReplication workflow
+        identified by cluster, keyspace, and workflow name. The response
+        includes the workflow's source and target shards, copy state, stream
+        health, and VReplication log entries for troubleshooting.
+      tags:
+        - Workflows
+      parameters:
+        - $ref: '#/components/parameters/ClusterId'
+        - name: keyspace
+          in: path
+          required: true
+          description: Name of the target keyspace for the workflow
+          schema:
+            type: string
+        - name: name
+          in: path
+          required: true
+          description: Name of the workflow
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '404':
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /backups:
+    get:
+      operationId: getBackups
+      summary: List backups
+      description: >-
+        Returns a list of all tablet backups across all registered clusters or
+        filtered by specified cluster IDs. Each backup entry includes its
+        cluster, keyspace, shard, tablet alias, backup time, engine, and
+        status. This endpoint is used to audit backup coverage and identify
+        the most recent successful backup for each shard.
+      tags:
+        - Backups
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs
+          schema:
+            type: array
+            items:
+              type: string
+        - name: keyspace
+          in: query
+          description: Filter backups to a specific keyspace
+          schema:
+            type: string
+        - name: shard
+          in: query
+          description: Filter backups to a specific shard
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of backups
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetBackupsResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /cells:
+    get:
+      operationId: getCells
+      summary: List cells
+      description: >-
+        Returns a list of all cells (availability zones or data center locations)
+        across all registered clusters or filtered by specified cluster IDs.
+        Cells in Vitess represent isolated failure domains used to organize
+        tablet placement and control cross-cell replication topology.
+      tags:
+        - Cells
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of cells
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCellsAliasesResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /gates:
+    get:
+      operationId: getGates
+      summary: List VTGate instances
+      description: >-
+        Returns a list of all VTGate instances across all registered clusters or
+        filtered by specified cluster IDs. Each gate entry includes its cluster,
+        hostname, cell, and keyspaces it is configured to serve. This endpoint
+        is used to inventory VTGate instances for load balancing and routing
+        audits.
+      tags:
+        - Gates
+      parameters:
+        - name: cluster_id
+          in: query
+          description: Filter results to specific cluster IDs
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of VTGate instances
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetGatesResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /topology/{cluster_id}:
+    get:
+      operationId: getTopology
+      summary: Get cluster topology
+      description: >-
+        Returns the full topology of a specific Vitess cluster as stored in the
+        topology service (etcd or ZooKeeper). The response is a hierarchical
+        representation of cells, keyspaces, shards, and tablet aliases. This
+        endpoint is used for cluster auditing, migration planning, and debugging
+        topology inconsistencies.
+      tags:
+        - Topology
+      parameters:
+        - $ref: '#/components/parameters/ClusterId'
+      responses:
+        '200':
+          description: Cluster topology
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetTopologyResponse'
+        '404':
+          description: Cluster not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /vtexplain:
+    get:
+      operationId: vtExplain
+      summary: Explain a query execution plan
+      description: >-
+        Returns the VTGate execution plan for a SQL query against a specific
+        cluster and keyspace. This endpoint uses vtexplain to show how VTGate
+        would route and rewrite the query across shards, which is useful for
+        query optimization and understanding scatter query behavior.
+      tags:
+        - Clusters
+      parameters:
+        - name: cluster
+          in: query
+          required: true
+          description: ID of the cluster to explain the query against
+          schema:
+            type: string
+        - name: keyspace
+          in: query
+          required: true
+          description: Name of the keyspace to explain the query against
+          schema:
+            type: string
+        - name: sql
+          in: query
+          required: true
+          description: SQL query to explain
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Query execution plan
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VTExplainResponse'
+        '400':
+          description: Invalid query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Bearer token for VTAdmin authentication
+  parameters:
+    TabletAlias:
+      name: tablet
+      in: path
+      required: true
+      description: >-
+        Tablet alias in the format "{cluster}/{cell}-{uid}" (e.g., "mycluster/zone1-0000000100")
+      schema:
+        type: string
+    ClusterId:
+      name: cluster_id
+      in: path
+      required: true
+      description: Identifier of the Vitess cluster
+      schema:
+        type: string
+  schemas:
+    Cluster:
+      type: object
+      description: A Vitess cluster registered with VTAdmin
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the cluster
+        name:
+          type: string
+          description: Human-readable name for the cluster
+    GetClustersResponse:
+      type: object
+      description: Response containing a list of clusters
+      properties:
+        clusters:
+          type: array
+          description: List of registered Vitess clusters
+          items:
+            $ref: '#/components/schemas/Cluster'
+    TabletAlias:
+      type: object
+      description: A unique identifier for a VTTablet instance
+      properties:
+        cell:
+          type: string
+          description: Cell (availability zone) where the tablet resides
+        uid:
+          type: integer
+          description: Unique numeric ID for the tablet within its cell
+    Tablet:
+      type: object
+      description: A VTTablet instance within a Vitess cluster
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        tablet:
+          type: object
+          description: Core tablet metadata
+          properties:
+            alias:
+              $ref: '#/components/schemas/TabletAlias'
+            hostname:
+              type: string
+              description: Hostname where the tablet is running
+            port_map:
+              type: object
+              description: Map of port names to port numbers
+              additionalProperties:
+                type: integer
+            keyspace:
+              type: string
+              description: Keyspace this tablet serves
+            shard:
+              type: string
+              description: Shard this tablet serves (e.g., "-80" or "80-")
+            type:
+              type: string
+              description: Tablet type
+              enum: [UNKNOWN, PRIMARY, MASTER, REPLICA, RDONLY, BATCH, SPARE, EXPERIMENTAL, BACKUP, RESTORE, DRAINED]
+            db_name_override:
+              type: string
+              description: Override for the MySQL database name served by this tablet
+            tags:
+              type: object
+              description: Key-value tags associated with the tablet
+              additionalProperties:
+                type: string
+            mysql_hostname:
+              type: string
+              description: MySQL hostname (may differ from tablet hostname)
+            mysql_port:
+              type: integer
+              description: MySQL port number
+        state:
+          type: string
+          description: Current serving state of the tablet
+          enum: [UNKNOWN, NOT_SERVING, SERVING]
+        fqdn:
+          type: string
+          description: Fully qualified domain name of the tablet
+    GetTabletsResponse:
+      type: object
+      description: Response containing a list of tablets
+      properties:
+        tablets:
+          type: array
+          description: List of tablets across clusters
+          items:
+            $ref: '#/components/schemas/Tablet'
+    GetTabletFullResponse:
+      type: object
+      description: Full details of a tablet including health and replication status
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        tablet:
+          $ref: '#/components/schemas/Tablet'
+        tablet_external_id:
+          type: string
+          description: External identifier for the tablet
+    Keyspace:
+      type: object
+      description: A Vitess keyspace representing a logical database
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        keyspace:
+          type: object
+          description: Keyspace configuration and metadata
+          properties:
+            name:
+              type: string
+              description: Name of the keyspace
+            keyspace:
+              type: object
+              description: Keyspace topology record
+              properties:
+                sharding_column_name:
+                  type: string
+                  description: Column used for sharding (empty for unsharded)
+                sharding_column_type:
+                  type: string
+                  description: Type of the sharding column
+        shards:
+          type: array
+          description: Shards belonging to this keyspace
+          items:
+            $ref: '#/components/schemas/Shard'
+    GetKeyspacesResponse:
+      type: object
+      description: Response containing a list of keyspaces
+      properties:
+        keyspaces:
+          type: array
+          description: List of keyspaces across clusters
+          items:
+            $ref: '#/components/schemas/Keyspace'
+    Shard:
+      type: object
+      description: A shard within a Vitess keyspace
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        keyspace:
+          type: string
+          description: Name of the keyspace this shard belongs to
+        name:
+          type: string
+          description: Shard name (key range, e.g., "-80" or "80-")
+        shard:
+          type: object
+          description: Shard topology record
+          properties:
+            primary_alias:
+              $ref: '#/components/schemas/TabletAlias'
+            primary_term_start_time:
+              type: string
+              format: date-time
+              description: Timestamp when this tablet became primary
+            is_primary_serving:
+              type: boolean
+              description: Whether the primary is currently serving queries
+        tablet_controls:
+          type: array
+          description: Tablet control records for this shard
+          items:
+            type: object
+    GetShardsResponse:
+      type: object
+      description: Response containing a list of shards
+      properties:
+        shards:
+          type: array
+          description: List of shards in the keyspace
+          items:
+            $ref: '#/components/schemas/Shard'
+    TableDefinition:
+      type: object
+      description: Definition of a database table
+      properties:
+        name:
+          type: string
+          description: Name of the table
+        schema:
+          type: string
+          description: CREATE TABLE statement for the table
+        columns:
+          type: array
+          description: List of column names
+          items:
+            type: string
+        primary_key_columns:
+          type: array
+          description: List of primary key column names
+          items:
+            type: string
+        type:
+          type: string
+          description: Table type (BASE TABLE or VIEW)
+        data_length:
+          type: string
+          description: Approximate data size in bytes
+        row_count:
+          type: string
+          description: Approximate row count
+    Schema:
+      type: object
+      description: Database schema for a keyspace
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        keyspace:
+          type: string
+          description: Name of the keyspace
+        table_definitions:
+          type: array
+          description: Table and view definitions in the keyspace
+          items:
+            $ref: '#/components/schemas/TableDefinition'
+        table_sizes:
+          type: object
+          description: Map of table name to size information
+          additionalProperties:
+            type: object
+    GetSchemasResponse:
+      type: object
+      description: Response containing schemas for multiple keyspaces
+      properties:
+        schemas:
+          type: array
+          description: List of schemas across clusters
+          items:
+            $ref: '#/components/schemas/Schema'
+    VSchema:
+      type: object
+      description: VTGate routing schema for a keyspace
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        name:
+          type: string
+          description: Name of the keyspace this VSchema applies to
+        v_schema:
+          type: object
+          description: The VSchema definition including vindexes and tables
+          properties:
+            sharded:
+              type: boolean
+              description: Whether this keyspace is sharded
+            vindexes:
+              type: object
+              description: Map of vindex names to vindex definitions
+              additionalProperties:
+                type: object
+                properties:
+                  type:
+                    type: string
+                    description: Vindex type (e.g., hash, lookup, lookup_unique)
+            tables:
+              type: object
+                  description: Map of table names to table VSchema definitions
+              additionalProperties:
+                type: object
+    GetVSchemasResponse:
+      type: object
+      description: Response containing VSchemas for multiple keyspaces
+      properties:
+        v_schemas:
+          type: array
+          description: List of VSchemas across clusters
+          items:
+            $ref: '#/components/schemas/VSchema'
+    Workflow:
+      type: object
+      description: A VReplication workflow for data migration or replication
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        keyspace:
+          type: string
+          description: Target keyspace for the workflow
+        workflow:
+          type: object
+          description: Core workflow metadata
+          properties:
+            name:
+              type: string
+              description: Name of the workflow
+            source:
+              type: object
+              description: Source configuration for the workflow
+              properties:
+                keyspace:
+                  type: string
+                  description: Source keyspace name
+                shards:
+                  type: array
+                  description: Source shard names
+                  items:
+                    type: string
+            target:
+              type: object
+              description: Target configuration for the workflow
+              properties:
+                keyspace:
+                  type: string
+                  description: Target keyspace name
+                shards:
+                  type: array
+                  description: Target shard names
+                  items:
+                    type: string
+            max_v_replication_lag:
+              type: string
+              description: Maximum replication lag across all streams in seconds
+    GetWorkflowsResponse:
+      type: object
+      description: Response containing a list of workflows
+      properties:
+        workflows_by_cluster:
+          type: object
+          description: Map of cluster ID to workflows in that cluster
+          additionalProperties:
+            type: object
+            properties:
+              workflows:
+                type: array
+                description: Workflows in the cluster
+                items:
+                  $ref: '#/components/schemas/Workflow'
+    Backup:
+      type: object
+      description: A tablet backup record
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        backup:
+          type: object
+          description: Backup metadata
+          properties:
+            cluster_id:
+              type: string
+              description: ID of the cluster containing this backup
+            keyspace:
+              type: string
+              description: Keyspace this backup covers
+            shard:
+              type: string
+              description: Shard this backup covers
+            tablet_alias:
+              $ref: '#/components/schemas/TabletAlias'
+            time:
+              type: string
+              format: date-time
+              description: Timestamp when the backup was taken
+            engine:
+              type: string
+              description: Backup engine used (e.g., builtin, xtrabackup)
+            status:
+              type: string
+              description: Status of the backup
+              enum: [UNKNOWN, COMPLETE, INCOMPLETE, INVALID, VALID]
+    GetBackupsResponse:
+      type: object
+      description: Response containing a list of backups
+      properties:
+        backups:
+          type: array
+          description: List of backups across clusters
+          items:
+            $ref: '#/components/schemas/Backup'
+    GetCellsAliasesResponse:
+      type: object
+      description: Response containing cells and cell aliases across clusters
+      properties:
+        aliases:
+          type: object
+          description: Map of cluster ID to cell alias information
+          additionalProperties:
+            type: object
+    VTGate:
+      type: object
+      description: A VTGate proxy instance within a Vitess cluster
+      properties:
+        cluster:
+          $ref: '#/components/schemas/Cluster'
+        hostname:
+          type: string
+          description: Hostname of the VTGate instance
+        cell:
+          type: string
+          description: Cell where this VTGate instance is running
+        keyspaces:
+          type: array
+          description: Keyspaces this VTGate is configured to serve
+          items:
+            type: string
+    GetGatesResponse:
+      type: object
+      description: Response containing a list of VTGate instances
+      properties:
+        gates:
+          type: array
+          description: List of VTGate instances across clusters
+          items:
+            $ref: '#/components/schemas/VTGate'
+    GetTopologyResponse:
+      type: object
+      description: Response containing cluster topology information
+      properties:
+        topology:
+          type: object
+          description: Hierarchical topology of the cluster
+    VTExplainResponse:
+      type: object
+      description: Response containing a query execution plan explanation
+      properties:
+        response:
+          type: string
+          description: Human-readable explanation of how VTGate would execute the query
+    Error:
+      type: object
+      description: Error response from the VTAdmin API
+      properties:
+        code:
+          type: integer
+          description: HTTP status code
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: array
+          description: Additional error details
+          items:
+            type: object

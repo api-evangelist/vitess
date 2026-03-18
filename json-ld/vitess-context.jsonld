@@ -1,0 +1,185 @@
+{
+  "@context": {
+    "@version": 1.1,
+    "vitess": "https://vitess.io/vocab/",
+    "schema": "https://schema.org/",
+    "xsd": "http://www.w3.org/2001/XMLSchema#",
+    "dcterms": "http://purl.org/dc/terms/",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+
+    "Cluster": {
+      "@id": "vitess:Cluster",
+      "@context": {
+        "id": {
+          "@id": "schema:identifier"
+        },
+        "name": {
+          "@id": "schema:name"
+        }
+      }
+    },
+
+    "Tablet": {
+      "@id": "vitess:Tablet",
+      "@context": {
+        "alias": {
+          "@id": "vitess:alias",
+          "@type": "@id"
+        },
+        "hostname": {
+          "@id": "schema:hostName"
+        },
+        "keyspace": {
+          "@id": "vitess:keyspace"
+        },
+        "shard": {
+          "@id": "vitess:shard"
+        },
+        "type": {
+          "@id": "vitess:tabletType"
+        },
+        "mysql_hostname": {
+          "@id": "vitess:mysqlHostname"
+        },
+        "mysql_port": {
+          "@id": "vitess:mysqlPort",
+          "@type": "xsd:integer"
+        },
+        "tags": {
+          "@id": "vitess:tags"
+        }
+      }
+    },
+
+    "TabletAlias": {
+      "@id": "vitess:TabletAlias",
+      "@context": {
+        "cell": {
+          "@id": "vitess:cell"
+        },
+        "uid": {
+          "@id": "schema:identifier",
+          "@type": "xsd:integer"
+        }
+      }
+    },
+
+    "Keyspace": {
+      "@id": "vitess:Keyspace",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "sharding_column_name": {
+          "@id": "vitess:shardingColumnName"
+        },
+        "sharding_column_type": {
+          "@id": "vitess:shardingColumnType"
+        }
+      }
+    },
+
+    "Shard": {
+      "@id": "vitess:Shard",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "keyspace": {
+          "@id": "vitess:keyspace"
+        },
+        "primary_alias": {
+          "@id": "vitess:primaryAlias",
+          "@type": "@id"
+        },
+        "primary_term_start_time": {
+          "@id": "vitess:primaryTermStartTime",
+          "@type": "xsd:dateTime"
+        },
+        "is_primary_serving": {
+          "@id": "vitess:isPrimaryServing",
+          "@type": "xsd:boolean"
+        }
+      }
+    },
+
+    "VSchema": {
+      "@id": "vitess:VSchema",
+      "@context": {
+        "sharded": {
+          "@id": "vitess:sharded",
+          "@type": "xsd:boolean"
+        },
+        "vindexes": {
+          "@id": "vitess:vindexes"
+        },
+        "tables": {
+          "@id": "vitess:tables"
+        }
+      }
+    },
+
+    "Vindex": {
+      "@id": "vitess:Vindex",
+      "@context": {
+        "type": {
+          "@id": "vitess:vindexType"
+        },
+        "params": {
+          "@id": "vitess:vindexParams"
+        },
+        "owner": {
+          "@id": "vitess:vindexOwner"
+        }
+      }
+    },
+
+    "Workflow": {
+      "@id": "vitess:Workflow",
+      "@context": {
+        "name": {
+          "@id": "schema:name"
+        },
+        "workflow_type": {
+          "@id": "vitess:workflowType"
+        },
+        "source": {
+          "@id": "vitess:source"
+        },
+        "target": {
+          "@id": "vitess:target"
+        },
+        "max_v_replication_lag": {
+          "@id": "vitess:maxReplicationLag",
+          "@type": "xsd:integer"
+        }
+      }
+    },
+
+    "Backup": {
+      "@id": "vitess:Backup",
+      "@context": {
+        "keyspace": {
+          "@id": "vitess:keyspace"
+        },
+        "shard": {
+          "@id": "vitess:shard"
+        },
+        "tablet_alias": {
+          "@id": "vitess:tabletAlias",
+          "@type": "@id"
+        },
+        "time": {
+          "@id": "dcterms:created",
+          "@type": "xsd:dateTime"
+        },
+        "engine": {
+          "@id": "vitess:backupEngine"
+        },
+        "status": {
+          "@id": "vitess:backupStatus"
+        }
+      }
+    }
+  }
+}
