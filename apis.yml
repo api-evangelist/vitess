@@ -9,12 +9,12 @@ description: >-
 type: Index
 url: https://vitess.io
 tags:
-  - Database
-  - MySQL
-  - Distributed Systems
-  - Sharding
   - Cloud Native
+  - Database
+  - Distributed Systems
   - Graduated
+  - MySQL
+  - Sharding
 created: '2025'
 modified: '2026-03-18'
 specificationVersion: '0.19'
@@ -33,11 +33,11 @@ apis:
       - type: Reference
         url: https://vitess.io/docs/reference/query-serving/
     tags:
-      - SQL
-      - Query Routing
-      - MySQL
       - gRPC
+      - MySQL
       - Proxy
+      - Query Routing
+      - SQL
   - aid: vitess:vtadmin-api
     name: Vitess VTAdmin API
     description: >-
@@ -55,8 +55,8 @@ apis:
         url: openapi/vitess-vtadmin-openapi.yml
     tags:
       - Administration
-      - REST
       - Cluster Management
+      - REST
       - Web UI
   - aid: vitess:vtctld-api
     name: Vitess VTCtld API
@@ -73,9 +73,9 @@ apis:
         url: https://vitess.io/docs/reference/vtctl/
     tags:
       - Administration
+      - Cluster Management
       - gRPC
       - Topology
-      - Cluster Management
   - aid: vitess:vreplication-api
     name: Vitess VReplication API
     description: >-
@@ -91,8 +91,8 @@ apis:
       - type: Reference
         url: https://vitess.io/docs/reference/vreplication/vreplication/
     tags:
-      - Replication
       - Data Migration
+      - Replication
       - Streaming
       - Workflows
 common:
