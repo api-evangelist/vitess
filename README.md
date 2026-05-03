@@ -1,34 +1,31 @@
 # Vitess (vitess)
+
 Vitess is a CNCF graduated database clustering system for horizontal scaling of MySQL through generalized sharding. It provides MySQL protocol compatibility, automated resharding, query routing, and connection pooling, making it suitable for running large-scale MySQL deployments on Kubernetes or other container orchestration platforms.
 
-**URL:** [Visit APIs.json URL](https://vitess.io)
+**URL:** [Visit APIs.json URL](https://raw.githubusercontent.com/api-evangelist/vitess/refs/heads/main/apis.yml)
 
-## Scope
+## Tags
 
-- **Type:** Index 
-- **Position:** Consuming 
-- **Access:** 3rd-Party 
-
-## Tags:
-
- - Database, MySQL, Distributed Systems, Sharding, Cloud Native, Graduated
+- Cloud Native
+- CNCF
+- Database
+- Distributed Systems
+- Graduated
+- MySQL
+- Sharding
 
 ## Timestamps
 
-- **Created:** 2025 
-- **Modified:** 2026-03-18 
+- **Created:** 2025
+- **Modified:** 2026-05-03
 
 ## APIs
 
 ### Vitess VTGate API
-VTGate is the stateless proxy that routes queries to the appropriate VTTablet instances. It exposes a MySQL-compatible interface and a gRPC API that clients use to interact with the Vitess cluster, handling query routing, scatter queries, and transaction management across shards.
+
+VTGate is the stateless proxy that routes queries to the appropriate VTTablet instances. It exposes a MySQL-compatible interface and a gRPC API.
 
 **Human URL:** [https://vitess.io/docs/reference/programs/vtgate/](https://vitess.io/docs/reference/programs/vtgate/)
-
-
-#### Tags:
-
- - SQL, Query Routing, MySQL, gRPC, Proxy
 
 #### Properties
 
@@ -36,14 +33,10 @@ VTGate is the stateless proxy that routes queries to the appropriate VTTablet in
 - [Reference](https://vitess.io/docs/reference/query-serving/)
 
 ### Vitess VTAdmin API
-VTAdmin is the administrative web application and REST API for managing Vitess clusters. It provides endpoints for inspecting cluster topology, tablets, keyspaces, shards, schemas, and VReplication workflows, and serves as the backend for the VTAdmin web UI.
+
+VTAdmin is the administrative REST API and web application for managing Vitess clusters, providing endpoints for topology, tablets, keyspaces, schemas, and VReplication workflows.
 
 **Human URL:** [https://vitess.io/docs/reference/programs/vtadmin/](https://vitess.io/docs/reference/programs/vtadmin/)
-
-
-#### Tags:
-
- - Administration, REST, Cluster Management, Web UI
 
 #### Properties
 
@@ -52,14 +45,10 @@ VTAdmin is the administrative web application and REST API for managing Vitess c
 - [OpenAPI](openapi/vitess-vtadmin-openapi.yml)
 
 ### Vitess VTCtld API
-VTCtld is the Vitess topology management daemon that exposes a gRPC and HTTP API for administrative operations on the cluster topology including creating and managing keyspaces, shards, tablets, and executing maintenance operations such as planned reparents and emergency reparents.
+
+VTCtld manages the cluster topology with gRPC and HTTP APIs for keyspace, shard, and tablet operations.
 
 **Human URL:** [https://vitess.io/docs/reference/programs/vtctld/](https://vitess.io/docs/reference/programs/vtctld/)
-
-
-#### Tags:
-
- - Administration, gRPC, Topology, Cluster Management
 
 #### Properties
 
@@ -67,14 +56,10 @@ VTCtld is the Vitess topology management daemon that exposes a gRPC and HTTP API
 - [Reference](https://vitess.io/docs/reference/vtctl/)
 
 ### Vitess VReplication API
-VReplication is the Vitess framework for replicating and transforming data streams within and across Vitess clusters. It powers features such as MoveTables, Reshard, Materialize, and CreateLookupVindex and exposes workflow management commands through the VTCtl API for orchestrating data migrations and real-time replication workflows.
+
+VReplication powers data movement workflows including MoveTables, Reshard, Materialize, and CreateLookupVindex.
 
 **Human URL:** [https://vitess.io/docs/reference/vreplication/](https://vitess.io/docs/reference/vreplication/)
-
-
-#### Tags:
-
- - Replication, Data Migration, Streaming, Workflows
 
 #### Properties
 
@@ -83,13 +68,11 @@ VReplication is the Vitess framework for replicating and transforming data strea
 
 ## Common Properties
 
-- [JSONSchema](json-schema/vitess-topology-schema.json)
-- [JSON-LD](json-ld/vitess-context.jsonld)
 - [Website](https://vitess.io)
 - [Documentation](https://vitess.io/docs/)
 - [Getting Started](https://vitess.io/docs/get-started/)
 - [GitHub Organization](https://github.com/vitessio)
-- [GitHubRepository](https://github.com/vitessio/vitess)
+- [GitHub Repository](https://github.com/vitessio/vitess)
 - [Blog](https://vitess.io/blog/)
 - [Community](https://vitess.io/community/)
 - [Slack](https://vitess.io/slack)
@@ -97,8 +80,37 @@ VReplication is the Vitess framework for replicating and transforming data strea
 - [Stack Overflow](https://stackoverflow.com/questions/tagged/vitess)
 - [Security](https://github.com/vitessio/vitess/blob/main/SECURITY.md)
 
+## Artifacts
+
+| Type | File |
+|------|------|
+| OpenAPI | [openapi/vitess-vtadmin-openapi.yml](openapi/vitess-vtadmin-openapi.yml) |
+| JSON Schema | [json-schema/vitess-topology-schema.json](json-schema/vitess-topology-schema.json) |
+| JSON Structure | [json-structure/vitess-tablet-structure.json](json-structure/vitess-tablet-structure.json) |
+| JSON-LD | [json-ld/vitess-context.jsonld](json-ld/vitess-context.jsonld) |
+| Spectral Rules | [rules/vitess-rules.yml](rules/vitess-rules.yml) |
+| Vocabulary | [vocabulary/vitess-vocabulary.yml](vocabulary/vitess-vocabulary.yml) |
+
+## Capabilities
+
+### Shared Definitions
+
+| API | File |
+|-----|------|
+| VTAdmin API | [capabilities/shared/vitess-vtadmin.yaml](capabilities/shared/vitess-vtadmin.yaml) |
+
+### Workflow Capabilities
+
+| Workflow | File | Description |
+|----------|------|-------------|
+| Cluster Administration | [capabilities/cluster-administration.yaml](capabilities/cluster-administration.yaml) | Unified topology, tablet, schema, workflow, and backup management for Vitess clusters |
+
+## Examples
+
+- [List Tablets](examples/vitess-vtadmin-getTablets-example.json)
+- [List Workflows](examples/vitess-vtadmin-getWorkflows-example.json)
+
 ## Maintainers
 
 **FN:** Kin Lane
-
 **Email:** kin@apievangelist.com

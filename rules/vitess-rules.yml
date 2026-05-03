@@ -1,0 +1,87 @@
+extends:
+  - spectral:oas
+
+rules:
+  # All operations must have summaries
+  vitess-operation-summary-required:
+    message: "All VTAdmin API operations must have a summary"
+    severity: error
+    given: "$.paths[*][*]"
+    then:
+      field: summary
+      function: truthy
+
+  # Summaries must use Title Case
+  vitess-summary-title-case:
+    message: "Operation summaries must use Title Case"
+    severity: warn
+    given: "$.paths[*][*].summary"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[A-Z]"
+
+  # Operation IDs must use camelCase
+  vitess-operationid-camelcase:
+    message: "Operation IDs must use camelCase"
+    severity: warn
+    given: "$.paths[*][*].operationId"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-zA-Z0-9]+$"
+
+  # Operations must be tagged
+  vitess-operation-tags:
+    message: "All operations must have at least one tag"
+    severity: warn
+    given: "$.paths[*][*]"
+    then:
+      field: tags
+      function: truthy
+
+  # GET operations return 200
+  vitess-get-200-response:
+    message: "GET operations must document a 200 response"
+    severity: error
+    given: "$.paths[*].get.responses"
+    then:
+      field: "200"
+      function: truthy
+
+  # All GET operations must document 500 response
+  vitess-get-500-response:
+    message: "GET operations should document a 500 error response"
+    severity: hint
+    given: "$.paths[*].get.responses"
+    then:
+      field: "500"
+      function: truthy
+
+  # Path parameters must have descriptions
+  vitess-path-params-described:
+    message: "Path parameters must have descriptions"
+    severity: warn
+    given: "$.paths[*][*].parameters[?(@.in=='path')]"
+    then:
+      field: description
+      function: truthy
+
+  # Schemas must have descriptions
+  vitess-schema-descriptions:
+    message: "Component schemas must have descriptions"
+    severity: hint
+    given: "$.components.schemas[*]"
+    then:
+      field: description
+      function: truthy
+
+  # API must use snake_case for query parameters (Vitess convention)
+  vitess-query-param-snake-case:
+    message: "Query parameters must use snake_case (Vitess API convention)"
+    severity: warn
+    given: "$.paths[*][*].parameters[?(@.in=='query')].name"
+    then:
+      function: pattern
+      functionOptions:
+        match: "^[a-z][a-z0-9_]*$"

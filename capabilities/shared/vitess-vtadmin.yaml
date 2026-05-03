@@ -1,0 +1,342 @@
+naftiko: "1.0.0-alpha1"
+
+info:
+  label: "Vitess VTAdmin API"
+  description: >-
+    Shared capability definition for the Vitess VTAdmin administrative REST API.
+    Provides access to cluster topology, tablets, keyspaces, shards, schemas,
+    VSchemas, VReplication workflows, backups, cells, and VTGate instances across
+    one or more Vitess cluster deployments.
+  tags:
+    - Cluster Management
+    - Cloud Native
+    - Database
+    - Distributed Systems
+    - MySQL
+    - Vitess
+  created: "2026-05-03"
+  modified: "2026-05-03"
+
+binds:
+  - namespace: env
+    keys:
+      VTADMIN_TOKEN: VTADMIN_TOKEN
+      VTADMIN_HOST: VTADMIN_HOST
+      VTADMIN_PORT: VTADMIN_PORT
+
+capability:
+  consumes:
+    - type: http
+      namespace: vitess-vtadmin
+      baseUri: "http://{{VTADMIN_HOST}}:{{VTADMIN_PORT}}/api"
+      description: "Vitess VTAdmin REST API for cluster administration"
+      authentication:
+        type: bearer
+        token: "{{VTADMIN_TOKEN}}"
+      resources:
+        - name: clusters
+          path: /clusters
+          description: "Vitess cluster listing"
+          operations:
+            - name: get-clusters
+              method: GET
+              description: "List all registered Vitess clusters"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: tablets
+          path: /tablets
+          description: "VTTablet instance management"
+          operations:
+            - name: get-tablets
+              method: GET
+              description: "List all VTTablet instances"
+              inputParameters:
+                - name: cluster_id
+                  in: query
+                  type: array
+                  required: false
+                  description: "Filter by cluster IDs"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: tablet
+          path: /tablet/{tablet}
+          description: "Individual tablet operations"
+          operations:
+            - name: get-tablet
+              method: GET
+              description: "Get a specific tablet by alias"
+              inputParameters:
+                - name: tablet
+                  in: path
+                  type: string
+                  required: true
+                  description: "Tablet alias (cluster/cell-uid)"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: keyspaces
+          path: /keyspaces
+          description: "Keyspace listing"
+          operations:
+            - name: get-keyspaces
+              method: GET
+              description: "List all keyspaces"
+              inputParameters:
+                - name: cluster_id
+                  in: query
+                  type: array
+                  required: false
+                  description: "Filter by cluster IDs"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: schemas
+          path: /schemas
+          description: "Database schema listing"
+          operations:
+            - name: get-schemas
+              method: GET
+              description: "List all keyspace schemas"
+              inputParameters:
+                - name: cluster_id
+                  in: query
+                  type: array
+                  required: false
+                  description: "Filter by cluster IDs"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: schema
+          path: /schema/{cluster_id}/{keyspace}
+          description: "Per-keyspace schema"
+          operations:
+            - name: get-schema
+              method: GET
+              description: "Get schema for a specific keyspace"
+              inputParameters:
+                - name: cluster_id
+                  in: path
+                  type: string
+                  required: true
+                  description: "Cluster identifier"
+                - name: keyspace
+                  in: path
+                  type: string
+                  required: true
+                  description: "Keyspace name"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: workflows
+          path: /workflows
+          description: "VReplication workflow listing"
+          operations:
+            - name: get-workflows
+              method: GET
+              description: "List all VReplication workflows"
+              inputParameters:
+                - name: cluster_id
+                  in: query
+                  type: array
+                  required: false
+                  description: "Filter by cluster IDs"
+                - name: active_only
+                  in: query
+                  type: boolean
+                  required: false
+                  description: "Return only active workflows"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: backups
+          path: /backups
+          description: "Tablet backup listing"
+          operations:
+            - name: get-backups
+              method: GET
+              description: "List all tablet backups"
+              inputParameters:
+                - name: cluster_id
+                  in: query
+                  type: array
+                  required: false
+                  description: "Filter by cluster IDs"
+                - name: keyspace
+                  in: query
+                  type: string
+                  required: false
+                  description: "Filter by keyspace"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: cells
+          path: /cells
+          description: "Cell listing"
+          operations:
+            - name: get-cells
+              method: GET
+              description: "List all cells (availability zones)"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: gates
+          path: /gates
+          description: "VTGate instance listing"
+          operations:
+            - name: get-gates
+              method: GET
+              description: "List all VTGate instances"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+        - name: topology
+          path: /topology/{cluster_id}
+          description: "Cluster topology"
+          operations:
+            - name: get-cluster-topology
+              method: GET
+              description: "Get full cluster topology"
+              inputParameters:
+                - name: cluster_id
+                  in: path
+                  type: string
+                  required: true
+                  description: "Cluster identifier"
+              outputRawFormat: json
+              outputParameters:
+                - name: result
+                  type: object
+                  value: "$."
+
+  exposes:
+    - type: rest
+      port: 8100
+      namespace: vitess-vtadmin-rest
+      resources:
+        - path: /v1/clusters
+          name: clusters
+          description: "Vitess clusters"
+          operations:
+            - method: GET
+              name: get-clusters
+              description: "List clusters"
+              call: "vitess-vtadmin.get-clusters"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/tablets
+          name: tablets
+          description: "VTTablet instances"
+          operations:
+            - method: GET
+              name: get-tablets
+              description: "List tablets"
+              call: "vitess-vtadmin.get-tablets"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/keyspaces
+          name: keyspaces
+          description: "Vitess keyspaces"
+          operations:
+            - method: GET
+              name: get-keyspaces
+              description: "List keyspaces"
+              call: "vitess-vtadmin.get-keyspaces"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+        - path: /v1/workflows
+          name: workflows
+          description: "VReplication workflows"
+          operations:
+            - method: GET
+              name: get-workflows
+              description: "List workflows"
+              call: "vitess-vtadmin.get-workflows"
+              outputParameters:
+                - type: object
+                  mapping: "$."
+
+    - type: mcp
+      port: 9100
+      namespace: vitess-vtadmin-mcp
+      transport: http
+      tools:
+        - name: get-clusters
+          description: "List all registered Vitess clusters"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "vitess-vtadmin.get-clusters"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-tablets
+          description: "List all VTTablet instances across clusters"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "vitess-vtadmin.get-tablets"
+          with:
+            cluster_id: "tools.cluster_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-keyspaces
+          description: "List all Vitess keyspaces (logical databases)"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "vitess-vtadmin.get-keyspaces"
+          with:
+            cluster_id: "tools.cluster_id"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-workflows
+          description: "List all VReplication workflows (MoveTables, Reshard, etc.)"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "vitess-vtadmin.get-workflows"
+          with:
+            cluster_id: "tools.cluster_id"
+            active_only: "tools.active_only"
+          outputParameters:
+            - type: object
+              mapping: "$."
+        - name: get-backups
+          description: "List all tablet backups across clusters"
+          hints:
+            readOnly: true
+            idempotent: true
+          call: "vitess-vtadmin.get-backups"
+          with:
+            cluster_id: "tools.cluster_id"
+            keyspace: "tools.keyspace"
+          outputParameters:
+            - type: object
+              mapping: "$."

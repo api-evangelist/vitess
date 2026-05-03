@@ -1,0 +1,59 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:14200/api/tablets",
+    "headers": {
+      "Authorization": "Bearer {{VTADMIN_TOKEN}}",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "tablets": [
+        {
+          "cluster": {
+            "id": "us-east",
+            "name": "us-east-production"
+          },
+          "tablet": {
+            "alias": {
+              "cell": "us-east-1",
+              "uid": 101
+            },
+            "hostname": "tablet-101.us-east-1.example.com",
+            "port_map": {
+              "grpc": 15999,
+              "mysql": 3306,
+              "vt": 15100
+            },
+            "keyspace": "commerce",
+            "shard": "-80",
+            "type": "PRIMARY"
+          },
+          "state": "SERVING"
+        },
+        {
+          "cluster": {
+            "id": "us-east",
+            "name": "us-east-production"
+          },
+          "tablet": {
+            "alias": {
+              "cell": "us-east-1",
+              "uid": 102
+            },
+            "hostname": "tablet-102.us-east-1.example.com",
+            "keyspace": "commerce",
+            "shard": "-80",
+            "type": "REPLICA"
+          },
+          "state": "SERVING"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,157 @@
+vocabulary:
+  name: Vitess Vocabulary
+  description: >-
+    Vocabulary for Vitess, the CNCF graduated database clustering system for
+    horizontal scaling of MySQL. Covers sharding, topology, replication, and
+    cluster management terminology.
+  version: "1.0"
+  created: "2026-05-03"
+  tags:
+    - Cloud Native
+    - CNCF
+    - Database
+    - Distributed Systems
+    - MySQL
+    - Sharding
+
+terms:
+  - term: Vitess
+    definition: >-
+      A CNCF graduated open source database clustering system for horizontal scaling
+      of MySQL. Vitess provides MySQL protocol compatibility, automated resharding,
+      query routing through VTGate, and connection pooling, making it suitable for
+      large-scale MySQL deployments on Kubernetes.
+    tags:
+      - Core
+      - Platform
+
+  - term: Keyspace
+    definition: >-
+      A logical database in Vitess that maps to one or more MySQL databases depending
+      on whether it is sharded. An unsharded keyspace maps to a single MySQL database;
+      a sharded keyspace is distributed across multiple MySQL database instances.
+    tags:
+      - Core
+      - Database Structure
+
+  - term: Shard
+    definition: >-
+      A horizontal partition of data within a Vitess keyspace. Each shard owns a
+      contiguous range of rows identified by a key range (e.g., -80 or 80-). Each
+      shard has one primary tablet and zero or more replica tablets.
+    tags:
+      - Core
+      - Sharding
+
+  - term: VTTablet
+    definition: >-
+      A server process that runs next to a MySQL instance, converting gRPC requests
+      from VTGate into MySQL queries. VTTablet manages connection pooling, query
+      execution, health checks, and replication. Each tablet has a type: PRIMARY,
+      REPLICA, or RDONLY.
+    tags:
+      - Architecture
+      - Core
+
+  - term: VTGate
+    definition: >-
+      A stateless proxy that serves as the entry point for client connections to a
+      Vitess cluster. VTGate routes MySQL queries to the appropriate VTTablet instances
+      based on the routing schema (VSchema), handles scatter queries, and manages
+      cross-shard transactions.
+    tags:
+      - Architecture
+      - Core
+
+  - term: VTAdmin
+    definition: >-
+      The administrative REST API and web application for managing Vitess clusters.
+      VTAdmin provides a unified interface for inspecting topology, tablets, keyspaces,
+      schemas, and VReplication workflows across one or more clusters.
+    tags:
+      - Administration
+      - API
+
+  - term: VSchema
+    definition: >-
+      The VTGate routing schema that defines how queries are routed across shards.
+      The VSchema specifies vindexes (sharding functions), vindexed tables, lookup
+      vindexes, and sequence tables for each keyspace.
+    tags:
+      - Core
+      - Routing
+
+  - term: Vindex
+    definition: >-
+      A sharding function in Vitess that maps a column value to a keyspace ID used to
+      identify which shard owns a row. Primary vindexes are used for sharding; lookup
+      vindexes are secondary indexes that map non-shard-key columns back to shard keys.
+    tags:
+      - Sharding
+      - Core
+
+  - term: VReplication
+    definition: >-
+      The Vitess data movement and transformation framework used to power operations
+      like MoveTables, Reshard, Materialize, and CreateLookupVindex. VReplication
+      reads the MySQL binary log and applies changes to target tablets, enabling
+      zero-downtime data migrations.
+    tags:
+      - Replication
+      - Data Migration
+
+  - term: MoveTables
+    definition: >-
+      A VReplication workflow that moves tables from one keyspace to another without
+      downtime. MoveTables is used to split a monolithic keyspace into separate
+      keyspaces or to re-shard data for better distribution.
+    tags:
+      - Data Migration
+      - VReplication
+
+  - term: Reshard
+    definition: >-
+      A VReplication workflow that changes the number of shards in a keyspace by
+      splitting or merging shards. Reshard redistributes data across more shards to
+      handle growth or fewer shards to reduce overhead.
+    tags:
+      - Sharding
+      - VReplication
+
+  - term: Cell
+    definition: >-
+      An availability zone or isolated failure domain within a Vitess deployment.
+      Cells are used to organize tablet placement and control cross-cell replication.
+      A typical deployment has cells in different data centers or availability zones
+      for high availability.
+    tags:
+      - Architecture
+      - Topology
+
+  - term: Topology Service
+    definition: >-
+      A consistent distributed key-value store (typically etcd or ZooKeeper) used by
+      Vitess to store cluster topology information including keyspace, shard, and tablet
+      metadata. VTGate and VTTablet query the topology service to discover cluster state.
+    tags:
+      - Architecture
+      - Infrastructure
+
+  - term: Primary Tablet
+    definition: >-
+      The tablet that currently handles all write traffic for a given shard. In a
+      Vitess cluster, exactly one tablet per shard is the primary at any time.
+      Failover to a new primary is handled automatically through planned or emergency
+      reparenting operations.
+    tags:
+      - Replication
+      - High Availability
+
+  - term: vtctld
+    definition: >-
+      The Vitess topology management daemon that exposes a gRPC and HTTP API for
+      administrative operations including creating keyspaces, managing shards,
+      executing planned reparents, and emergency reparents.
+    tags:
+      - Administration
+      - Architecture

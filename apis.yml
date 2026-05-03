@@ -10,13 +10,14 @@ type: Index
 url: https://vitess.io
 tags:
   - Cloud Native
+  - CNCF
   - Database
   - Distributed Systems
   - Graduated
   - MySQL
   - Sharding
 created: '2025'
-modified: '2026-03-18'
+modified: '2026-05-03'
 specificationVersion: '0.19'
 apis:
   - aid: vitess:vtgate-api
@@ -98,8 +99,16 @@ apis:
 common:
   - type: JSONSchema
     url: json-schema/vitess-topology-schema.json
-  - type: JSON-LD
+  - type: JSONLD
     url: json-ld/vitess-context.jsonld
+  - type: JSONStructure
+    url: json-structure/vitess-tablet-structure.json
+  - type: OpenAPI
+    url: openapi/vitess-vtadmin-openapi.yml
+  - type: SpectralRules
+    url: rules/vitess-rules.yml
+  - type: Vocabulary
+    url: vocabulary/vitess-vocabulary.yml
   - type: Website
     url: https://vitess.io
   - type: Documentation

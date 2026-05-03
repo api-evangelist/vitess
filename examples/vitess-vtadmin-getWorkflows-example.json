@@ -1,0 +1,41 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "http://localhost:14200/api/workflows?cluster_id=us-east",
+    "headers": {
+      "Authorization": "Bearer {{VTADMIN_TOKEN}}",
+      "Accept": "application/json"
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "body": {
+      "workflows": [
+        {
+          "cluster": {
+            "id": "us-east",
+            "name": "us-east-production"
+          },
+          "keyspace": "commerce",
+          "workflow": {
+            "name": "MoveTables_customer",
+            "source": {
+              "keyspace": "commerce",
+              "shards": ["-80", "80-"]
+            },
+            "target": {
+              "keyspace": "customer",
+              "shards": ["-80", "80-"]
+            },
+            "max_v_replication_lag": 2,
+            "workflow_type": "MoveTables",
+            "workflow_sub_type": "None"
+          }
+        }
+      ]
+    }
+  }
+}

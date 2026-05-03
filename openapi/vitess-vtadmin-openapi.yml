@@ -55,7 +55,7 @@ paths:
   /clusters:
     get:
       operationId: getClusters
-      summary: List clusters
+      summary: List Clusters
       description: >-
         Returns a list of all Vitess clusters that are registered with this
         VTAdmin instance. Each cluster entry includes its ID and name. This
@@ -79,7 +79,7 @@ paths:
   /tablets:
     get:
       operationId: getTablets
-      summary: List tablets
+      summary: List Tablets
       description: >-
         Returns a list of all VTTablet instances across all registered clusters,
         or filtered by the specified cluster IDs. Each tablet entry includes
@@ -112,7 +112,7 @@ paths:
   /tablet/{tablet}:
     get:
       operationId: getTablet
-      summary: Get a tablet
+      summary: Get a Tablet
       description: >-
         Returns detailed information about a specific tablet identified by its
         tablet alias (cluster/cell-uid format). The response includes the
@@ -145,7 +145,7 @@ paths:
   /tablet/{tablet}/full:
     get:
       operationId: getTabletFull
-      summary: Get full tablet details
+      summary: Get Full Tablet Details
       description: >-
         Returns comprehensive details about a specific tablet including its
         current health, replication status, and configuration. This endpoint
@@ -171,7 +171,7 @@ paths:
   /tablet/{tablet}/debug/vars:
     get:
       operationId: getTabletDebugVars
-      summary: Get tablet debug variables
+      summary: Get Tablet Debug Variables
       description: >-
         Returns the debug variables exported by a specific tablet, which include
         performance counters, query statistics, replication lag metrics, and
@@ -198,7 +198,7 @@ paths:
   /keyspaces:
     get:
       operationId: getKeyspaces
-      summary: List keyspaces
+      summary: List Keyspaces
       description: >-
         Returns a list of all keyspaces across all registered clusters or
         filtered by specified cluster IDs. Each keyspace entry includes its
@@ -231,7 +231,7 @@ paths:
   /keyspace/{cluster_id}/{name}:
     get:
       operationId: getKeyspace
-      summary: Get a keyspace
+      summary: Get a Keyspace
       description: >-
         Returns detailed information about a specific keyspace within a cluster,
         including its sharding configuration, serving shards, and VSchema. This
@@ -263,7 +263,7 @@ paths:
   /shards/{cluster_id}/{keyspace}:
     get:
       operationId: getShards
-      summary: List shards in a keyspace
+      summary: List Shards in a Keyspace
       description: >-
         Returns a list of all shards within a specific keyspace. Each shard
         entry includes its name (key range), primary tablet alias, and whether
@@ -295,7 +295,7 @@ paths:
   /schema/{cluster_id}/{keyspace}:
     get:
       operationId: getSchema
-      summary: Get schema for a keyspace
+      summary: Get Schema for a Keyspace
       description: >-
         Returns the database schema for the specified keyspace, including table
         definitions, view definitions, and index information. The schema is
@@ -347,7 +347,7 @@ paths:
   /schemas:
     get:
       operationId: getSchemas
-      summary: List schemas
+      summary: List Schemas
       description: >-
         Returns schemas for all keyspaces across all registered clusters or
         filtered by specified cluster IDs. This is a batch version of the
@@ -373,7 +373,7 @@ paths:
   /vschema/{cluster_id}/{keyspace}:
     get:
       operationId: getVSchema
-      summary: Get VSchema for a keyspace
+      summary: Get VSchema for a Keyspace
       description: >-
         Returns the VSchema (VTGate routing schema) for a specific keyspace.
         The VSchema defines how VTGate routes queries to shards, including
@@ -430,7 +430,7 @@ paths:
   /workflows:
     get:
       operationId: getWorkflows
-      summary: List workflows
+      summary: List Workflows
       description: >-
         Returns a list of all VReplication workflows across all registered
         clusters or filtered by specified cluster IDs. Each workflow entry
@@ -468,7 +468,7 @@ paths:
   /workflow/{cluster_id}/{keyspace}/{name}:
     get:
       operationId: getWorkflow
-      summary: Get a workflow
+      summary: Get a Workflow
       description: >-
         Returns detailed information about a specific VReplication workflow
         identified by cluster, keyspace, and workflow name. The response
@@ -506,7 +506,7 @@ paths:
   /backups:
     get:
       operationId: getBackups
-      summary: List backups
+      summary: List Backups
       description: >-
         Returns a list of all tablet backups across all registered clusters or
         filtered by specified cluster IDs. Each backup entry includes its
@@ -549,7 +549,7 @@ paths:
   /cells:
     get:
       operationId: getCells
-      summary: List cells
+      summary: List Cells
       description: >-
         Returns a list of all cells (availability zones or data center locations)
         across all registered clusters or filtered by specified cluster IDs.
@@ -581,7 +581,7 @@ paths:
   /gates:
     get:
       operationId: getGates
-      summary: List VTGate instances
+      summary: List VTGate Instances
       description: >-
         Returns a list of all VTGate instances across all registered clusters or
         filtered by specified cluster IDs. Each gate entry includes its cluster,
@@ -614,7 +614,7 @@ paths:
   /topology/{cluster_id}:
     get:
       operationId: getTopology
-      summary: Get cluster topology
+      summary: Get Cluster Topology
       description: >-
         Returns the full topology of a specific Vitess cluster as stored in the
         topology service (etcd or ZooKeeper). The response is a hierarchical
@@ -641,7 +641,7 @@ paths:
   /vtexplain:
     get:
       operationId: vtExplain
-      summary: Explain a query execution plan
+      summary: Explain a Query Execution Plan
       description: >-
         Returns the VTGate execution plan for a SQL query against a specific
         cluster and keyspace. This endpoint uses vtexplain to show how VTGate

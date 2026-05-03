@@ -1,0 +1,54 @@
+{
+  "title": "Vitess Tablet Structure",
+  "description": "Structural documentation for the Tablet object returned by the VTAdmin API",
+  "type": "object",
+  "fields": [
+    {
+      "name": "cluster",
+      "type": "object",
+      "required": true,
+      "description": "Cluster this tablet belongs to",
+      "fields": [
+        { "name": "id", "type": "string", "description": "Cluster identifier" },
+        { "name": "name", "type": "string", "description": "Cluster display name" }
+      ]
+    },
+    {
+      "name": "tablet",
+      "type": "object",
+      "required": true,
+      "description": "Tablet metadata",
+      "fields": [
+        {
+          "name": "alias",
+          "type": "object",
+          "description": "Tablet alias (cell + uid)",
+          "fields": [
+            { "name": "cell", "type": "string", "description": "Cell name" },
+            { "name": "uid", "type": "integer", "description": "Unique ID within cell" }
+          ]
+        },
+        { "name": "hostname", "type": "string", "description": "Tablet host FQDN" },
+        {
+          "name": "port_map",
+          "type": "object",
+          "description": "Port assignments",
+          "fields": [
+            { "name": "grpc", "type": "integer" },
+            { "name": "mysql", "type": "integer" },
+            { "name": "vt", "type": "integer" }
+          ]
+        },
+        { "name": "keyspace", "type": "string", "description": "Assigned keyspace" },
+        { "name": "shard", "type": "string", "description": "Assigned shard key range" },
+        { "name": "type", "type": "string", "description": "PRIMARY, REPLICA, RDONLY, SPARE" }
+      ]
+    },
+    {
+      "name": "state",
+      "type": "string",
+      "required": false,
+      "description": "Current serving state: SERVING, NOT_SERVING, UNKNOWN"
+    }
+  ]
+}
