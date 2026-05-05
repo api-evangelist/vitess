@@ -1,0 +1,13 @@
+{
+  "repo": "vitess",
+  "feeds": [
+    {
+      "source": "https://vitess.io/blog/",
+      "feed_url": "https://vitess.io/blog/index.xml",
+      "saved": 10,
+      "title": "The Vitess blog on Vitess"
+    }
+  ],
+  "post_count": 10,
+  "fetched": "2026-05-03T23:38:03Z"
+}
