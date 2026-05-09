@@ -3,11 +3,11 @@
   "feeds": [
     {
       "source": "https://vitess.io/blog/",
-      "feed_url": "https://vitess.io/blog/index.xml",
-      "saved": 10,
-      "title": "The Vitess blog on Vitess"
+      "feed_url": "https://vitess.io/blog/rss/",
+      "title": "The Vitess blog on Vitess",
+      "saved": 0
     }
   ],
   "post_count": 10,
-  "fetched": "2026-05-03T23:38:03Z"
+  "fetched": "2026-05-09T20:17:51Z"
 }
