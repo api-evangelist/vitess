@@ -113,9 +113,9 @@ common:
     url: https://vitess.io
   - type: Documentation
     url: https://vitess.io/docs/
-  - type: Getting Started
+  - type: GettingStarted
     url: https://vitess.io/docs/get-started/
-  - type: GitHub Organization
+  - type: GitHubOrganization
     url: https://github.com/vitessio
   - type: GitHubRepository
     url: https://github.com/vitessio/vitess
@@ -125,9 +125,9 @@ common:
     url: https://vitess.io/community/
   - type: Slack
     url: https://vitess.io/slack
-  - type: Change Log
+  - type: ChangeLog
     url: https://github.com/vitessio/vitess/blob/main/changelog/
-  - type: Stack Overflow
+  - type: StackOverflow
     url: https://stackoverflow.com/questions/tagged/vitess
   - type: Security
     url: https://github.com/vitessio/vitess/blob/main/SECURITY.md
