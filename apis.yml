@@ -97,6 +97,8 @@ apis:
       - Streaming
       - Workflows
 common:
+  - type: DomainSecurity
+    url: security/vitess-domain-security.yml
   - type: JSONSchema
     url: json-schema/vitess-topology-schema.json
   - type: JSONLD
