@@ -110,6 +110,9 @@ apis:
       - Streaming
       - Workflows
 common:
+  - type: License
+    name: Apache-2.0
+    url: https://github.com/vitessio/vitess/blob/main/LICENSE
   - type: DomainSecurity
     url: security/vitess-domain-security.yml
   - type: JSONSchema
