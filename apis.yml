@@ -22,6 +22,14 @@ description: >-
 type: Index
 url: https://vitess.io
 tags:
+  - Cloud-Native
+  - CNCF
+  - Database
+  - Distributed Systems
+  - Graduated
+  - MySQL
+  - Sharding
+tags_raw:
   - Cloud Native
   - CNCF
   - Database
