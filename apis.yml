@@ -131,6 +131,12 @@ apis:
       - Streaming
       - Workflows
 common:
+  - type: Plans
+    url: plans/vitess-plans-pricing.yml
+  - type: RateLimits
+    url: rate-limits/vitess-rate-limits.yml
+  - type: FinOps
+    url: finops/vitess-finops.yml
   - type: IssueTracker
     url: https://github.com/vitessio/vitess/issues
   - type: Releases
