@@ -1,4 +1,4 @@
-# Vitess (vitess)
+# Vitess
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,124 +66,146 @@
 
 Vitess is a CNCF graduated database clustering system for horizontal scaling of MySQL through generalized sharding. It provides MySQL protocol compatibility, automated resharding, query routing, and connection pooling, making it suitable for running large-scale MySQL deployments on Kubernetes or other container orchestration platforms.
 
-**APIs.json:** [https://vitess.io](https://vitess.io)
+**Areas:** Cloud-Native · CNCF · Database · Distributed Systems · Graduated · MySQL · Sharding
 
-## Scope
+## Vitess on APIs.io
 
-- **Type:** Index
+Everything profiled for Vitess is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/vitess/](https://apis.io/providers/vitess/)** — or go straight to one of the APIs or properties below.
 
-## Tags
+### APIs (4)
 
-- Cloud Native
-- CNCF
-- Database
-- Distributed Systems
-- Graduated
-- MySQL
-- Sharding
+- [Vitess VTGate API](https://apis.io/apis/vitess/vtgate-api/) — VTGate is the stateless proxy that routes queries to the appropriate VTTablet instances. It exposes a MySQL-compatible interface and a gRPC API that clients…
+- [Vitess VTAdmin API](https://apis.io/apis/vitess/vtadmin-api/) — VTAdmin is the administrative web application and REST API for managing Vitess clusters. It provides endpoints for inspecting cluster topology, tablets,…
+- [Vitess VTCtld API](https://apis.io/apis/vitess/vtctld-api/) — VTCtld is the Vitess topology management daemon that exposes a gRPC and HTTP API for administrative operations on the cluster topology including creating…
+- [Vitess VReplication API](https://apis.io/apis/vitess/vreplication-api/) — VReplication is the Vitess framework for replicating and transforming data streams within and across Vitess clusters. It powers features such as MoveTables,…
 
-## Timestamps
+### Published properties
 
-- **Created:** 2025
-- **Modified:** 2026-05-03
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-## APIs
+#### JSON Schema (1)
 
-### Vitess VTGate API
+The data models the API reads and writes.
 
-VTGate is the stateless proxy that routes queries to the appropriate VTTablet instances. It exposes a MySQL-compatible interface and a gRPC API that clients use to interact with the Vitess cluster, handling query routing, scatter queries, and transaction management across shards.
+- [Vitess Topology](https://apis.io/schemas/vitess/vitess-topology/)
 
-- **Human URL:** [https://vitess.io/docs/reference/programs/vtgate/](https://vitess.io/docs/reference/programs/vtgate/)
+#### JSON Structure (1)
 
-#### Tags
+Data models expressed in JSON Structure.
 
-- gRPC
-- MySQL
-- Proxy
-- Query Routing
-- SQL
+- [Vitess Tablet Structure](https://apis.io/json-structure/vitess/vitess-tablet-structure/)
 
-#### Properties
+#### JSON-LD (1)
 
-- [Documentation](https://vitess.io/docs/reference/programs/vtgate/)
-- [Reference](https://vitess.io/docs/reference/query-serving/)
+Linked-data contexts for the provider's vocabulary.
 
-### Vitess VTAdmin API
+- [Vitess Context](https://apis.io/jsonld/vitess/vitess-context/)
 
-VTAdmin is the administrative web application and REST API for managing Vitess clusters. It provides endpoints for inspecting cluster topology, tablets, keyspaces, shards, schemas, and VReplication workflows, and serves as the backend for the VTAdmin web UI.
+#### Vocabulary (1)
 
-- **Human URL:** [https://vitess.io/docs/reference/programs/vtadmin/](https://vitess.io/docs/reference/programs/vtadmin/)
+The provider's domain terms, defined.
 
-#### Tags
+- [Vitess Vocabulary](https://apis.io/vocabularies/vitess/vitess-vocabulary/)
 
-- Administration
-- Cluster Management
-- REST
-- Web UI
+#### Examples (2)
 
-#### Properties
+Example requests and responses.
 
-- [Documentation](https://vitess.io/docs/reference/programs/vtadmin/)
-- [Reference](https://vitess.io/docs/reference/vtadmin/)
-- [OpenAPI](openapi/vitess-vtadmin-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
+- [Vitess Vtadmin Gettablets Example](https://apis.io/examples/vitess/vitess-vtadmin-getTablets-example/)
+- [Vitess Vtadmin Getworkflows Example](https://apis.io/examples/vitess/vitess-vtadmin-getWorkflows-example/)
 
-### Vitess VTCtld API
+#### Governance rules (2)
 
-VTCtld is the Vitess topology management daemon that exposes a gRPC and HTTP API for administrative operations on the cluster topology including creating and managing keyspaces, shards, tablets, and executing maintenance operations such as planned reparents and emergency reparents.
+Spectral rulesets for the provider's contracts.
 
-- **Human URL:** [https://vitess.io/docs/reference/programs/vtctld/](https://vitess.io/docs/reference/programs/vtctld/)
+- [Vitess — jsonschema rules](https://apis.io/rules/vitess/vitess-jsonschema-spectral-rules/)
+- [Vitess API Rules](https://apis.io/rules/vitess/vitess-rules/)
 
-#### Tags
+#### Security (1)
 
-- Administration
-- Cluster Management
-- gRPC
-- Topology
+Authentication, trust centre, and vulnerability disclosure.
 
-#### Properties
+- [Vitess Domain Security](https://apis.io/security/vitess/vitess-domain-security/)
 
-- [Documentation](https://vitess.io/docs/reference/programs/vtctld/)
-- [Reference](https://vitess.io/docs/reference/vtctl/)
+#### Plans and pricing (1)
 
-### Vitess VReplication API
+Published plans, tiers and prices.
 
-VReplication is the Vitess framework for replicating and transforming data streams within and across Vitess clusters. It powers features such as MoveTables, Reshard, Materialize, and CreateLookupVindex and exposes workflow management commands through the VTCtl API for orchestrating data migrations and real-time replication workflows.
+- [Vitess Plans Pricing](https://apis.io/plans/vitess/vitess-plans-pricing/)
 
-- **Human URL:** [https://vitess.io/docs/reference/vreplication/](https://vitess.io/docs/reference/vreplication/)
+#### Rate limits (1)
 
-#### Tags
+Published request limits.
 
-- Data Migration
-- Replication
-- Streaming
-- Workflows
+- [Vitess Rate Limits](https://apis.io/rate-limits/vitess/vitess-rate-limits/)
 
-#### Properties
+#### FinOps (1)
 
-- [Documentation](https://vitess.io/docs/reference/vreplication/)
-- [Reference](https://vitess.io/docs/reference/vreplication/vreplication/)
+What the API costs to run, by operation.
 
-## Common Properties
+- [Vitess Finops](https://apis.io/finops/vitess/vitess-finops/)
 
-- [JSON Schema](json-schema/vitess-topology-schema.json) — [JSON Schema](https://json-schema.org/specification)
-- [JSON-LD](json-ld/vitess-context.jsonld) — [JSON-LD](https://www.w3.org/TR/json-ld11/)
-- [JSON Structure](json-structure/vitess-tablet-structure.json)
-- [OpenAPI](openapi/vitess-vtadmin-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Spectral Rules](rules/vitess-rules.yml)
-- [Vocabulary](vocabulary/vitess-vocabulary.yml)
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://vitess.io)
 - [Documentation](https://vitess.io/docs/)
-- [Getting Started](https://vitess.io/docs/get-started/)
-- [GitHub Organization](https://github.com/vitessio)
-- [GitHub Repository](https://github.com/vitessio/vitess)
-- [Blog](https://vitess.io/blog/)
-- [Community](https://vitess.io/community/)
-- [Slack](https://vitess.io/slack)
+- [Getting started](https://vitess.io/docs/get-started/)
 - [Changelog](https://github.com/vitessio/vitess/blob/main/changelog/)
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/vitess)
+- [Blog](https://vitess.io/blog/)
 - [Security](https://github.com/vitessio/vitess/blob/main/SECURITY.md)
+- [GitHub](https://github.com/vitessio)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 36.4** — thin · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 69.6 |
+| Contract quality | 30.7 |
+| Contract governance | 27.3 |
+| Operational transparency | 34.2 |
+| Developer ergonomics | 33.3 |
+| Access clarity | 5.3 |
+
+**Agent readiness 13.6** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | derived (partial credit) |
+| Event Surface Described | — |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 10.8** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/vitess/](https://apis.io/providers/vitess/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Vitess: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/vitess/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
